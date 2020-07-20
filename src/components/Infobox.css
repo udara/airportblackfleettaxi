@@ -1,0 +1,36 @@
+.feature_box
+{
+	min-height:320px;
+	background:#e3e8ee;
+	margin-bottom: 1em;
+}
+
+.feature_box_title
+{
+	height:80px;
+}
+
+.feature_box_title h3
+{
+    line-height:80px;
+    font-size:1em;
+    font-weight: bold;
+}
+
+.feature_box_content
+{	
+	padding:0 10px;
+}
+
+.feature_box_content p
+{
+	font-weight:300;
+	font-size:1em;
+	line-height:1.5em;
+}
+
+.feature_icon
+{
+	height:60px;
+	margin:10px auto;
+}

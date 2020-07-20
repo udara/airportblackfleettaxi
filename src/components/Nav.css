@@ -1,0 +1,13 @@
+.active
+{
+    background-color: #fdb813
+}
+
+@media (min-width: 768px) { 
+
+    .nav-item
+    {
+    margin-right:25px;
+    }
+
+}
