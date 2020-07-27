@@ -4,21 +4,20 @@ import DisplayFares from './DisplayFares';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import 'react-google-places-autocomplete/dist/index.min.css';
 import './FareCalculator.css';
-import { BookingContext } from "../contexts/BookingContext";
 
 class FareCalculator extends React.Component{
-    static contextType = BookingContext;
+
     constructor(props)
     {
         super(props);
         this.state = {
             search : '',
             showFares: false,
-            journeyFares : ''
+            journeyFares : '',
+            transfer_type : 'pickup'
         }
         this.handleUpdate = this.handleUpdate.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.SetContext = this.SetContext.bind(this);
     }
 
     handleUpdate(event)
@@ -31,15 +30,7 @@ class FareCalculator extends React.Component{
         return <h1>Welcome back!</h1>;
     }
 
-    SetContext()
-    {
-        const data = {
-            selected_vehicle : 'van',
-            address : '123456'
-        }
-
-        this.context.QuickCalcInfo(data);
-    }
+    
 
     handleSubmit(event)
     {
@@ -61,7 +52,7 @@ class FareCalculator extends React.Component{
                 this.setState(
                     {
                         showFares : true,
-                        journeyFares : response.data.prices
+                        journeyFares : response.data.prices,
                     }
                 );
             }
@@ -89,6 +80,10 @@ class FareCalculator extends React.Component{
                    <p className='text-left mb-1'>FARE CALCULATOR</p>
                    <p className="text-white">Calculate discounted flat rate to/from Toronto Airport.</p>
                    <div className="input-group mb-3 w-100">
+                   <select name='transfer_type' onChange={this.handleUpdate} class="form-control form-control-md rounded-0 bg-dark text-white border-0 search-select">
+                        <option  selected value='pickup'>Drop to</option>
+                        <option value='drop'>Pickup From</option>
+                    </select>
                         <div className="input-group-prepend w-75 bg-light">
                             <GooglePlacesAutocomplete
                              autocompletionRequest={{
@@ -111,10 +106,16 @@ class FareCalculator extends React.Component{
                               )}
                             />
                         </div>
-                        <button onClick={this.handleSubmit, this.SetContext} className="btn btn-dark rounded-0 w-25" type="button">Search</button>
+                        
+                    </div>
+                    <div className="row">
+                    <div className='col text-right'>
+                    <button onClick={this.handleSubmit} className="btn btn-dark rounded-0 w-25" type="button">Search</button>
+                    </div>
+                    
                     </div>
                </div>
-                {this.state.showFares  ? <DisplayFares prices={this.state.journeyFares}/> : null}
+                {this.state.showFares  ? <DisplayFares prices={this.state.journeyFares} transfer_type={this.state.transfer_type} /> : null}
                </div>
         );
     }

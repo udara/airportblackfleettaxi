@@ -11,7 +11,10 @@ export class BookingProvider extends Component {
         this.state = {
             selected_vehicle : '',
             address : '',
-            transfer_type: ''
+            transfer_type: '',
+            vehicle_description : '',
+            vehicle_image : '',
+            price : ''
         }
         this.getBookingData = this.getBookingData.bind(this);
     }

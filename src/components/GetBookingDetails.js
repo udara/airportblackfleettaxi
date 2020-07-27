@@ -3,13 +3,20 @@ import axios from 'axios';
 import './GetBookingDetails.css';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import 'react-google-places-autocomplete/dist/index.min.css';
+import { BookingContext } from "../contexts/BookingContext";
 
 class GetBookingDetails extends React.Component{
+    
+    static contextType = BookingContext;
+
     constructor(props)
     {
         super(props);
         this.state = {
-            selectedVehicle : './img/fleet/lux_suv.png',
+            isBooked:false,
+            selected_vehicle: '',
+            vehicle_description : '',
+            vehicle_image : '',
             pickup_address : '',
             drop_address : '',
             name : '',
@@ -17,10 +24,60 @@ class GetBookingDetails extends React.Component{
             mobile : '',
             pickup_date : '',
             pickup_time : '',
+            error_pickup_date : '',
+            error_pickup_address : '',
+            error_drop_address : '',
+            error_name : '',
+            error_email : '',
+            error_mobile : ''
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount(){
+        if(this.context.transfer_type == 'pickup')
+        {
+            this.setState({
+                pickup_address : 'Toronto Pearson International Airport',
+                drop_address : this.context.address
+            });
+        }
+        else if(this.context.transfer_type == 'drop')
+        {
+            this.setState({
+                pickup_address : this.context.address,
+                drop_address : 'Toronto Pearson International Airport',
+            });
+        }
+        else
+        {
+            this.setState({
+                pickup_address : '',
+                drop_address : '',
+            });
+        }
+        if (this.context.selected_vehicle != '')
+        {
+            this.setState({
+                selected_vehicle: this.context.selected_vehicle,
+                vehicle_description : this.context.vehicle_description,
+                vehicle_image : this.context.vehicle_image,
+                price: this.context.price
+            })
+        }
+        else
+        {
+            this.setState({
+                selected_vehicle: '',
+                vehicle_description : '',
+                vehicle_image : 'lux_sedan.png',
+                price: '',
+            })
+        }
+  
+        
     }
 
     handleChange(event)
@@ -82,7 +139,6 @@ class GetBookingDetails extends React.Component{
             this.setState({error_mobile : ''})
         }
 
-
         let data = {
             pickup_address : this.state.pickup_address,
             drop_address : this.state.drop_address,
@@ -90,30 +146,58 @@ class GetBookingDetails extends React.Component{
             email : this.state.email,
             mobile : this.state.mobile,
             pickup_date : this.state.pickup_date,
-            pickup_time : this.state.pickup_time
-        };
+            pickup_time : this.state.pickup_time,
+            };
+
+        if (this.state.error_pickup_date == '' 
+            && this.state.error_pickup_address == '' 
+            && this.state.error_drop_address == ''
+            && this.state.error_name == ''
+            && this.state.error_email == ''
+            && this.state.error_mobile == '') 
+            
+        {
 
         axios({
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              url: 'http://localhost:9000/api/submit_reservation',
-              data: data
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            url: 'http://localhost:9000/api/submit_reservation',
+            data: data
             })
-         .then((response) => {
+        .then((response) => {
             if(response.data.status === 'OK'){
-                this.setState({isBooked:true})
+                this.setState({
+                    isBooked:true,
+                    pickup_address : '',
+                    drop_address : '',
+                    name : '',
+                    email : '',
+                    mobile : '',
+                    pickup_date : '',
+                    pickup_time : '',
+                    error_pickup_date : '',
+                    error_pickup_address : '',
+                    error_drop_address : '',
+                    error_name : '',
+                    error_email : '',
+                    error_mobile : ''
+                })
             }
             
-         })
+        })
         .catch(error=>{
             if(error.data.status === 'ERROR'){
                 console.log('Error')
             }
-             console.log(error)
+            console.log(error)
         });
+        }
+        else
+        {
+            console.log('From not validated')
+        }
         
-
-    }
+}
 
     render(){
         return(
@@ -122,7 +206,7 @@ class GetBookingDetails extends React.Component{
                         <div className='col-md-6 p-0'>
                         { 
                         this.state.isBooked  ? 
-                        <div className="bg-warning text-white p-2 ">Thank you! We have received your booking</div>
+                        <div className="bg-warning text-white p-2 mb-2">Thank you! We have received your booking</div>
                         : null
                         }
                             <form autocomplete="off" onSubmit={this.handleSubmit} className="needs-validation">
@@ -152,6 +236,7 @@ class GetBookingDetails extends React.Component{
                                                         country: ['ca'],
                                                         }
                                                     }}
+                                                    initialValue = {this.state.pickup_address}
                                                     placeholder = 'Pickup Place / Address'
                                                     onSelect={({ description }) => (
                                                         this.setState({ pickup_address: description })
@@ -179,6 +264,7 @@ class GetBookingDetails extends React.Component{
                                                         country: ['ca'],
                                                         }
                                                     }}
+                                                    initialValue = {this.state.drop_address}
                                                     placeholder = 'Drop Place / Address'
                                                     onSelect={({ description }) => (
                                                         this.setState({ drop_address: description })
@@ -210,7 +296,7 @@ class GetBookingDetails extends React.Component{
                                     <div className='col-12'>
                                             <div className="form-group text-left">
                                                 <label htmlFor="email">Email</label>
-                                                <input onChange={this.handleChange} value={this.state.drop_email}  type="text" className="form-control rounded-0 required" id="email" name="email" aria-describedby="Email Address" placeholder=""/>
+                                                <input onChange={this.handleChange} value={this.state.email}  type="text" className="form-control rounded-0 required" id="email" name="email" aria-describedby="Email Address" placeholder=""/>
                                                 <span className='error'>{this.state.error_email}</span>
                                             </div> 
                                     </div>
@@ -219,22 +305,23 @@ class GetBookingDetails extends React.Component{
                                     <div className='col-12'>
                                             <div className="form-group text-left">
                                                 <label htmlFor="mobile">Mobile</label>
-                                                <input onChange={this.handleChange} value={this.state.drop_mobile} type="text" className="form-control rounded-0" id="mobile" name="mobile" aria-describedby="Mobile Phone" placeholder=""/>
+                                                <input onChange={this.handleChange} value={this.state.mobile} type="text" className="form-control rounded-0" id="mobile" name="mobile" aria-describedby="Mobile Phone" placeholder=""/>
                                                 <span className='error'>{this.state.error_mobile}</span>
                                             </div>
                                             
                                     </div>
                                 </div>
                                 <div className='col-12 text-right pr-0 mt-3'>
-                                <button className="btn btn-dark rounded-0 mb-3" type='submit'>Book Your Journey</button>
+                                <button className="btn btn-dark rounded-0 mb-3">Book Your Journey</button>
                                 </div>
                             </form>
                         </div>
                        
                          <div className='col-md-6'>
                                 <h2 className='text-center display-4 pb-3'>SELECTED VEHICLE</h2>
-                                <img className='selected-vehicle' src='./img/fleet/lux_suv.png'/>
-                                <p className='font-weight-light text-center pt-4'>Passengers : 6 | Large Bags : 6 | Small Bags : 6</p>
+                                <img className='selected-vehicle' src={'./img/fleet/'+this.state.vehicle_image}/>
+                                <p className='font-weight-light text-center pt-4'>{this.state.vehicle_description}</p>
+                                <p className='font-weight-light text-center price rounded-0'>{this.state.price} CAD</p>
                         </div>
                     </div>
                </div>

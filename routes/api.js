@@ -34,10 +34,10 @@ router.post("/api/calculate_distance", function ({body}, res) {
         let response = {
           status : 'OK',
           prices: [
-            {name:'sedan', address: address, description: '3 Bags | 3 Passengers', image:'lux_sedan.png',  price: parseFloat(.50 * journeyDistance).toFixed(2)},
-            {name:'crossover', address: address, description: '4 Bags | 4 Passengers', image:'fleet_midsize_crossover.png', price: parseFloat(.65 * journeyDistance).toFixed(2)},
-            {name:'suv', address: address, description: '6 Bags | 6 Passengers', image:'lux_suv.png', price: parseFloat(.85 * journeyDistance).toFixed(2)},
-            {name:'van', address: address, description: '8 Bags | 8 Passengers', image:'luxury_van.png', price: parseFloat(.65 * journeyDistance).toFixed(2)},
+            {name:'sedan', address: address, description: '3 Large bags | 3 Small bags | 3 Passengers', image:'lux_sedan.png',  price: parseFloat(.50 * journeyDistance).toFixed(2)},
+            {name:'crossover', address: address, description: '4 Large bags | 4 Small bags | 4 Passengers', image:'fleet_midsize_crossover.png', price: parseFloat(.65 * journeyDistance).toFixed(2)},
+            {name:'suv', address: address, description: '6 Large bags | 6 Small bags | 6 Passengers', image:'lux_suv.png', price: parseFloat(.85 * journeyDistance).toFixed(2)},
+            {name:'van', address: address, description: '8 Large bags | 8 Small bags | 8 Passengers', image:'luxury_van.png', price: parseFloat(.65 * journeyDistance).toFixed(2)},
           ],
           distance : parseFloat(journeyDistance).toFixed(2) + " KMs",
           estimated_time: Math.floor(estimatedTime) + " Minutes"
